@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keep Number Reminder demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    label { display: block; margin: 1rem 0 .35rem; }
+    output { display: block; margin: 1rem 0; min-height: 1.5em; }
+    button { margin-right: .5rem; margin-top: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>UK SIM Keep-Number Reminder (demo)</h1>
+  <p>Runs locally. No phone numbers leave the page. Hosted product page: <a href="https://getgiffgaff.com/tools/keep-number-reminder/">getgiffgaff.com/tools/keep-number-reminder/</a></p>
+  <label>Last qualifying activity / 最近一次可验证动作日期
+    <input id="last" type="date" required />
+  </label>
+  <button id="calc" type="button">Create fifth-month reminder</button>
+  <button id="dl" type="button" disabled>Download .ics</button>
+  <output id="out" aria-live="polite"></output>
+  <script type="module">
+    import { keepNumberReminderDate, keepNumberCalendar } from "../src/keep-number.js";
+    const last = document.getElementById("last");
+    const out = document.getElementById("out");
+    const dl = document.getElementById("dl");
+    let ics = null;
+    document.getElementById("calc").onclick = () => {
+      const reminder = keepNumberReminderDate(last.value);
+      ics = keepNumberCalendar(last.value);
+      dl.disabled = !ics;
+      out.textContent = reminder
+        ? `Fifth-month reminder / 第 5 个月提醒：${reminder}`
+        : "Invalid date / 日期无效";
+    };
+    dl.onclick = () => {
+      if (!ics) return;
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "keep-number-reminder.ics";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+  </script>
+</body>
+</html>

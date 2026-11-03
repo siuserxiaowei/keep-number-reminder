@@ -1,0 +1,15 @@
+{
+  "name": "keep-number-reminder",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Local fifth-month UK SIM keep-number reminder helpers (.ics). Companion to getgiffgaff.com/tools/keep-number-reminder/",
+  "type": "module",
+  "exports": "./src/keep-number.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/siuserxiaowei/keep-number-reminder.git"
+  },
+  "homepage": "https://getgiffgaff.com/tools/keep-number-reminder/",
+  "keywords": ["giffgaff", "sim", "ics", "calendar", "keep-number"]
+}
