@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'"
+  />
+  <meta
+    name="description"
+    content="Browser-local giffgaff keep-number reminder. A fifth-month date and an .ics file, calculated on your device."
+  />
+  <title>保号提醒 Keep-number reminder</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --ink: #1c1915;
+      --muted: #4e483f;
+      --line: #d8d0c3;
+      --card: #fffdf8;
+      --accent: #0c5c45;
+      --accent-ink: #f7fffb;
+      --focus: #0b57d0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161411;
+        --ink: #f3efe6;
+        --muted: #c9c0b2;
+        --line: #3a342c;
+        --card: #211e19;
+        --accent: #7dceb4;
+        --accent-ink: #10211b;
+        --focus: #9dc1ff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    main {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.4rem; }
+    h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
+    p { margin: 0.4rem 0; }
+    a { color: var(--accent); }
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .lede { font-size: 1.05rem; }
+    .note, .panel, .result {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      margin: 1rem 0;
+    }
+    .hint { color: var(--muted); font-size: 0.95rem; }
+    label { display: block; font-weight: 650; margin-bottom: 0.35rem; }
+    input[type="date"] {
+      width: 100%;
+      font: inherit;
+      font-size: 1rem;
+      padding: 0.65rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+    button {
+      font: inherit;
+      font-size: 1rem;
+      min-height: 44px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: var(--accent-ink);
+      cursor: pointer;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .date {
+      font-variant-numeric: tabular-nums;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0.15rem 0 0.8rem;
+    }
+    ul { margin: 0.3rem 0 0; padding-left: 1.15rem; }
+    footer { color: var(--muted); font-size: 0.92rem; }
+    .links { padding-left: 1.15rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>giffgaff 保号提醒<br />Keep-number reminder</h1>
+    <p class="lede" lang="zh-CN">在浏览器本地，把最近一次可核对的使用日期换成第 5 个月的日历提醒，并导出 .ics。</p>
+    <p class="lede" lang="en">Turn a last-activity date into a fifth-month calendar reminder and download an .ics file. The calculation stays in this browser.</p>
+
+    <aside class="note">
+      <p lang="zh-CN">由 getgiffgaff.com 维护的独立第三方工具，与 giffgaff Limited 无隶属、无背书。G0 / G2 是该站店铺的 SKU 标签，不是 giffgaff 官方产品名。本页不售卡。</p>
+      <p lang="en">Maintained by getgiffgaff.com, an independent third party. Not affiliated with or endorsed by giffgaff Limited. G0 / G2 are shop SKU labels on that site, not official giffgaff product names. This page does not sell SIMs.</p>
+    </aside>
+
+    <section class="panel">
+      <label for="last-activity">最近一次可核对的使用日期 / Last activity you can verify</label>
+      <input id="last-activity" type="date" autocomplete="off" />
+      <p class="hint">按日历月计算，不是固定天数。1 月 31 日加 5 个月是 6 月 30 日。 / Calendar months, not a fixed number of days. 31 January plus 5 months is 30 June.</p>
+      <div class="actions">
+        <button id="calculate" type="button">计算第 5 个月 / Calculate</button>
+        <button id="download" class="secondary" type="button" disabled>下载 .ics / Download .ics</button>
+      </div>
+    </section>
+
+    <section id="result" class="result" tabindex="-1">
+      <h2>结果 / Result</h2>
+      <p>第 5 个月提醒（写入日历） / Fifth-month reminder (this date is written to the calendar)</p>
+      <p id="reminder-date" class="date" aria-live="polite">—</p>
+      <p>加 6 个日历月，只在页面上对照大约 6 个月的边界。不写入日历，也不是官方给出的停用时刻。 / Plus 6 calendar months. A local reading aid for the roughly six-month boundary. It is not written to the calendar and it is not an official deactivation time.</p>
+      <p id="boundary-date" class="date">—</p>
+      <p id="status" aria-live="polite"></p>
+    </section>
+
+    <section>
+      <h2>这个页面做的事 / What this page does</h2>
+      <ul>
+        <li lang="zh-CN">用你输入的日期，在本地算出第 5 个月提醒，并下载一份不含号码的日历文件。</li>
+        <li lang="en">Computes a fifth-month reminder from the date you type, then downloads a calendar file with no phone number in it.</li>
+      </ul>
+      <h2>这个页面不做的事 / What this page does not do</h2>
+      <ul>
+        <li lang="zh-CN">不查询号码是否还在，不提供接码，也不能代替官方帮助、登录官方账户或 PAC 申请。</li>
+        <li lang="en">It does not check number status, provide one-time passwords, or replace official help, your own account login, or a PAC request.</li>
+        <li lang="zh-CN">日期只留在这个输入框里。刷新就没了。本页没有电话号码栏，也不会把日期提交到服务器。</li>
+        <li lang="en">The date lives only in this field. A refresh clears it. There is no phone-number field, and the date is not submitted to a server.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>第 5 个月是相对大约 6 个月不活跃边界的保守提前量。行动前请核对官方原文。 / The fifth month is a conservative early buffer relative to a roughly six-month inactivity boundary. Read the official article before you act.</p>
+      <ul class="links">
+        <li><a href="https://help.giffgaff.com/en/articles/242797-understanding-why-your-number-has-been-deactivated" rel="noreferrer">giffgaff official help / 官方帮助</a></li>
+        <li><a href="https://getgiffgaff.com/tools/keep-number-reminder/" rel="noreferrer">Live tool / 在线工具</a></li>
+        <li><a href="https://getgiffgaff.com/guides/giffgaff-keep-number/" rel="noreferrer">Keep-number guide / 保号对照</a></li>
+        <li><a href="https://getgiffgaff.com/guides/giffgaff-pac/" rel="noreferrer">PAC guide / PAC 对照</a></li>
+        <li><a href="https://github.com/siuserxiaowei/keep-number-reminder/blob/main/docs/rules.md" rel="noreferrer">Rules note / 规则说明</a></li>
+      </ul>
+      <noscript>
+        <p>This page needs JavaScript and still keeps the date on your device. You can also use the live tool linked above. / 本页需要 JavaScript，日期仍只在你的设备上计算。也可以使用上面的在线工具。</p>
+      </noscript>
+    </footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

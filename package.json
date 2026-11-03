@@ -2,10 +2,13 @@
   "name": "keep-number-reminder",
   "version": "1.0.0",
   "private": false,
-  "description": "Local fifth-month UK SIM keep-number reminder helpers (.ics). Companion to getgiffgaff.com/tools/keep-number-reminder/",
+  "description": "Browser-local fifth-month giffgaff keep-number reminder. Dates stay on the device; the .ics file has no phone number.",
   "type": "module",
-  "exports": "./src/keep-number.js",
+  "exports": "./web/keep-number.js",
   "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/siuserxiaowei/keep-number-reminder.git"
